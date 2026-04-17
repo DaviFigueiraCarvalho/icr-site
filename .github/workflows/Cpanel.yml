@@ -1,24 +1,23 @@
-name: Debug cPanel SSH
+name: Deploy to cPanel
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
-  debug:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test SSH connection
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload files
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: ${{ secrets.CPANEL_PORT }}
-          script: |
-            echo "USER: $(whoami)"
-            echo "HOME: $HOME"
-            pwd
-            uname -a
-            ls -la
-            ls -la ~/public_html || true
+          source: "./*"
+          target: "/home2/${{ secrets.CPANEL_USERNAME }}/icravivalista.com.br"
